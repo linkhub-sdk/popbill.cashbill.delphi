@@ -118,7 +118,7 @@ type
                 
                 function jsonToTCashbillInfo(json : String) : TCashbillInfo;
                 function jsonToTCashbill(json : String) : TCashbill;
-                function TCashbillTojson(Cashbill : TCashbill) : String;
+                function TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
 
         public
                 constructor Create(LinkID : String; SecretKey : String);
@@ -127,7 +127,9 @@ type
 
                 //관리번호 사용여부 확인
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
-                
+
+                //즉시발행
+                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String) : TResponse;
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String) : TResponse;
                 //수정.
@@ -221,12 +223,14 @@ begin
         result:= cashbillInfo.ItemKey <> '';
 end;
 
-function TCashbillService.TCashbillTojson(Cashbill : TCashbill) : String;
+function TCashbillService.TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
 var
         requestJson : string;
 
 begin
         requestJson := '{';
+
+        requestJson := requestJson + '"memo":"'+ Memo +'",';
 
         requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
         requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
@@ -264,12 +268,26 @@ begin
         result := requestJson;
 end;
 
+
+function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String) : TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        requestJson := TCashbillTojson(Cashbill, Memo);
+
+        responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'ISSUE');
+
+        result.code := getJSonInteger(responseJson,'code');
+        result.message := getJSonString(responseJson,'message');
+end;
+
 function TCashbillService.Register(CorpNum : String; Cashbill : TCashbill; UserID : String) : TResponse;
 var
         requestJson : string;
         responseJson : string;
 begin
-        requestJson := TCashbillTojson(Cashbill);
+        requestJson := TCashbillTojson(Cashbill, '');
 
         responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson);
 
@@ -288,7 +306,7 @@ begin
                 Exit;
         end;
         
-        requestJson := TCashbillTojson(Cashbill);
+        requestJson := TCashbillTojson(Cashbill, '');
 
         responseJson := httppost('/Cashbill/'+MgtKey,
                                 CorpNum,UserID,requestJson,'PATCH');
