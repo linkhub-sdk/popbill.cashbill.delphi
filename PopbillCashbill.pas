@@ -126,7 +126,7 @@ type
                 function GetURL(CorpNum : String; UserID : String; TOGO : String) : String;
 
                 //관리번호 사용여부 확인
-                function CheckMgtKey(CorpNum : String; MgtKey : String) : boolean;
+                function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
 
                 //즉시발행
                 function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String) : TResponse;
@@ -195,7 +195,7 @@ begin
         result := getJSonString(responseJson,'url');
 end;
 
-function TCashbillService.CheckMgtKey(CorpNum : String; MgtKey : String): boolean;
+function TCashbillService.CheckMgtKeyInUse(CorpNum : String; MgtKey : String): boolean;
 var
         responseJson : string;
         cashbillInfo : TCashbillInfo;
