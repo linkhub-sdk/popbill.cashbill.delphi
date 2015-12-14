@@ -274,12 +274,24 @@ var
         requestJson : string;
         responseJson : string;
 begin
-        requestJson := TCashbillTojson(Cashbill, Memo);
+        try
+                requestJson := TCashbillTojson(Cashbill, Memo);
+                responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'ISSUE');
 
-        responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'ISSUE');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.Register(CorpNum : String; Cashbill : TCashbill; UserID : String) : TResponse;
@@ -287,12 +299,23 @@ var
         requestJson : string;
         responseJson : string;
 begin
-        requestJson := TCashbillTojson(Cashbill, '');
+        try
+                requestJson := TCashbillTojson(Cashbill, '');
+                responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson);
 
-        responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson);
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String) : TResponse;
@@ -305,15 +328,26 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;
         end;
-        
-        requestJson := TCashbillTojson(Cashbill, '');
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'PATCH');
+        try
+                requestJson := TCashbillTojson(Cashbill, '');
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'PATCH');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
 
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
@@ -327,13 +361,25 @@ begin
                 Exit;
         end;
 
-        requestJson := '{"memo":"'+EscapeString(Memo)+'"}';
+        try
+                requestJson := '{"memo":"'+EscapeString(Memo)+'"}';
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'ISSUE');
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'ISSUE');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
@@ -346,13 +392,24 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;
         end;
-        requestJson := '{"memo":"'+EscapeString(Memo)+'"}';
+        try
+                requestJson := '{"memo":"'+EscapeString(Memo)+'"}';
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'CANCELISSUE');
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'CANCELISSUE');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 
@@ -367,13 +424,27 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;                                                             
         end;
-        requestJson := '{"receiver":"'+EscapeString(Receiver)+'"}';
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'EMAIL');
+        try
+                requestJson := '{"receiver":"'+EscapeString(Receiver)+'"}';
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'EMAIL');
+
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String) : TResponse;
@@ -386,13 +457,25 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;
         end;
-        requestJson := '{"sender":"'+EscapeString(Sender)+'","receiver":"'+EscapeString(Receiver)+'","contents":"'+EscapeString(Contents)+'"}';
+        try
+                requestJson := '{"sender":"'+EscapeString(Sender)+'","receiver":"'+EscapeString(Receiver)+'","contents":"'+EscapeString(Contents)+'"}';
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'SMS');
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'SMS');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 function TCashbillService.SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String) : TResponse;
@@ -405,13 +488,25 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;
         end;
-        requestJson := '{"sender":"'+EscapeString(Sender)+'","receiver":"'+EscapeString(Receiver)+'"}';
+        try
+                requestJson := '{"sender":"'+EscapeString(Sender)+'","receiver":"'+EscapeString(Receiver)+'"}';
 
-        responseJson := httppost('/Cashbill/'+MgtKey,
-                                CorpNum,UserID,requestJson,'FAX');
+                responseJson := httppost('/Cashbill/'+MgtKey,
+                                        CorpNum,UserID,requestJson,'FAX');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 
@@ -605,10 +700,22 @@ begin
                 raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
                 Exit;
         end;
-        responseJson := httppost('/Cashbill/'+MgtKey,CorpNum,UserID,'','DELETE');
+        try
+                responseJson := httppost('/Cashbill/'+MgtKey,CorpNum,UserID,'','DELETE');
 
-        result.code := getJSonInteger(responseJson,'code');
-        result.message := getJSonString(responseJson,'message');
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
 end;
 
 
