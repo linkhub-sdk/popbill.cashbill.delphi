@@ -28,7 +28,7 @@ unit PopbillCashbill;
 interface
 
 uses
-        TypInfo,SysUtils,Classes,
+        TypInfo,SysUtils,Classes, Dialogs,
         Popbill,
         Linkhub;
 type
@@ -100,6 +100,17 @@ type
 
         TCashbillInfoList = Array of TCashbillInfo;
 
+        TCashbillSearchList = class
+        public
+                code            : Integer;
+                total           : Integer;
+                perPage         : Integer;
+                pageNum         : Integer;
+                pageCount       : Integer;
+                message         : String;
+                list            : TCashbillInfoList;
+        end;
+
         TCashbillLog = class
         public
                 docLogType      : Integer;
@@ -149,6 +160,9 @@ type
                 function SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String) : TResponse;
                 // 팩스 재전송.
                 function SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String) : TResponse;
+
+                //현금영수증 목록조회
+                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer) : TCashbillSearchList;
 
                 //현금영수증 요약정보 및 상태정보 확인.
                 function GetInfo(CorpNum : string; MgtKey: string) : TCashbillInfo;
@@ -650,6 +664,106 @@ begin
         
         
 end;
+
+function TCashbillService.Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String;Page:Integer; PerPage: Integer) : TCashbillSearchList;
+var
+        responseJson : String;
+        uri : String;
+        StateList : String;
+        TradeTypeList : String;
+        TradeUsageList : String;
+        TaxationTypeList : String;
+        i : integer;
+        jSons : ArrayOfString;
+
+begin
+        for i := 0 to High(State) do
+        begin
+                if State[i] <> '' Then
+                begin
+                        if i = High(State) Then
+                        begin
+                                StateList := StateList + State[i];
+                        end
+                        else begin
+                                StateList := StateList + State[i] +',';
+                        end;
+                end
+        end;
+
+        for i := 0 to High(TradeType) do
+        begin
+                if TradeType[i] <> '' Then
+                begin
+                        if i = High(TradeType) Then
+                        begin
+                                TradeTypeList := TradeTypeList + TradeType[i];
+                        end
+                        else begin
+                                TradeTypeList := TradeTypeList + TradeType[i] +',';
+                        end;
+                end
+        end;
+
+        for i := 0 to High(TradeUsage) do
+        begin
+                if TradeUsage[i] <> '' Then
+                begin
+                        if i = High(TradeUsage) Then
+                        begin
+                                TradeUsageList := TradeUsageList + TradeUsage[i];
+                        end
+                        else begin
+                                TradeUsageList := TradeUsageList + TradeUsage[i] +',';
+                        end;
+                end
+        end;
+
+        for i := 0 to High(TaxationType) do
+        begin
+                if TaxationType[i] <> '' Then
+                begin
+                        if i = High(TaxationType) Then
+                        begin
+                                TaxationTypeList := TaxationTypeList + TaxationType[i];
+                        end
+                        else begin
+                                TaxationTypeList := TaxationTypeList + TaxationType[i] +',';
+                        end;
+                end
+        end;
+
+
+        uri := '/Cashbill/Search?DType='+DType+'&&SDate='+SDate+'&&EDate='+EDate;
+        uri := uri + '&&State='+StateList + '&&TradeType='+TradeTypeList;
+        uri := uri + '&&TradeUsage='+TradeUsageList + '&&TaxationType='+TaxationTypeList;
+        uri := uri + '&&Page='+IntToStr(Page)+'&&PerPage='+IntToStr(PerPage);
+
+        responseJson := httpget(uri, CorpNum,'');
+        
+        result := TCashbillSearchList.Create;
+        
+        result.code             := getJSonInteger(responseJson,'code');
+        result.total            := getJSonInteger(responseJson,'total');
+        result.perPage          := getJSonInteger(responseJson,'perPage');
+        result.pageNum          := getJSonInteger(responseJson,'pageNum');
+        result.pageCount        := getJSonInteger(responseJson,'pageCount');
+        result.message          := getJSonString(responseJson,'message');
+
+        try
+                jSons := getJSonList(responseJson,'list');
+                SetLength(result.list,Length(jSons));
+
+                for i := 0 to Length(jSons)-1 do
+                begin
+                        result.list[i] := jsonToTCashbillInfo(jSons[i]);
+                end;
+
+        except on E:Exception do
+                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
+        end;
+end;
+
 
 function TCashbillService.getInfos(CorpNum : string; MgtKeyList: Array Of String) : TCashbillInfoList;
 var
