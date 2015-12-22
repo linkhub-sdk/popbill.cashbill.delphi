@@ -28,7 +28,7 @@ unit PopbillCashbill;
 interface
 
 uses
-        TypInfo,SysUtils,Classes, Dialogs,
+        TypInfo,SysUtils,Classes,
         Popbill,
         Linkhub;
 type
