@@ -162,7 +162,7 @@ type
                 function SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String) : TResponse;
 
                 //현금영수증 목록조회
-                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer) : TCashbillSearchList;
+                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList;
 
                 //현금영수증 요약정보 및 상태정보 확인.
                 function GetInfo(CorpNum : string; MgtKey: string) : TCashbillInfo;
@@ -665,7 +665,7 @@ begin
         
 end;
 
-function TCashbillService.Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String;Page:Integer; PerPage: Integer) : TCashbillSearchList;
+function TCashbillService.Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String;Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList;
 var
         responseJson : String;
         uri : String;
@@ -738,6 +738,7 @@ begin
         uri := uri + '&&State='+StateList + '&&TradeType='+TradeTypeList;
         uri := uri + '&&TradeUsage='+TradeUsageList + '&&TaxationType='+TaxationTypeList;
         uri := uri + '&&Page='+IntToStr(Page)+'&&PerPage='+IntToStr(PerPage);
+        uri := uri + '&&Order=' + Order;
 
         responseJson := httpget(uri, CorpNum,'');
         
