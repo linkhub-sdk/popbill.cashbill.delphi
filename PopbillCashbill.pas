@@ -109,6 +109,7 @@ type
                 pageCount       : Integer;
                 message         : String;
                 list            : TCashbillInfoList;
+                destructor Destroy; override;
         end;
 
         TCashbillLog = class
@@ -195,6 +196,17 @@ type
 
 
 implementation
+destructor TCashbillSearchList.Destroy;
+var
+  I: Integer;
+begin
+  for I := 0 to Length(list)-1 do
+    if Assigned(list[I]) then
+      list[I].Free;
+  SetLength(list, 0);
+  inherited Destroy;
+end;
+
 constructor TCashbillService.Create(LinkID : String; SecretKey : String);
 begin
        inherited Create(LinkID,SecretKey);
