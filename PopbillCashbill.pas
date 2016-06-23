@@ -32,6 +32,14 @@ uses
         Popbill,
         Linkhub;
 type
+        TCashbillChargeInfo = class
+        public
+                unitCost : String;
+                chargeMethod : string;
+                rateSystem : string;
+        end;
+
+        
         TCashbill = class
         public
                 mgtKey               : string;
@@ -191,6 +199,9 @@ type
                 // 현금영수증 발행단가 확인.
                 function GetUnitCost(CorpNum : String) : Single;
 
+                // 과금정보 확인
+                function GetChargeInfo(CorpNum : String) : TCashbillChargeInfo;
+
         end;
 
 
@@ -211,6 +222,24 @@ constructor TCashbillService.Create(LinkID : String; SecretKey : String);
 begin
        inherited Create(LinkID,SecretKey);
        AddScope('140');
+end;
+
+function TCashbillService.GetChargeInfo (CorpNum : string) : TCashbillChargeInfo;
+var
+        responseJson : String;
+begin
+        responseJson := httpget('/Cashbill/ChargeInfo',CorpNum,'');
+
+        try
+                result := TCashbillChargeInfo.Create;
+
+                result.unitCost := getJSonString(responseJson, 'unitCost');
+                result.chargeMethod := getJSonString(responseJson, 'chargeMethod');
+                result.rateSystem := getJSonString(responseJson, 'rateSystem');
+
+        except on E:Exception do
+                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
+        end;
 end;
 
 function TCashbillService.GetURL(CorpNum : String; UserID : String; TOGO : String) : String;
