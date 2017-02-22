@@ -21,7 +21,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2016-08-16
+* Updated : 2017-02-22
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -145,60 +145,81 @@ type
         public
                 constructor Create(LinkID : String; SecretKey : String);
                 //팝빌 현금영수증연결 url.
-                function GetURL(CorpNum : String; UserID : String; TOGO : String) : String;
+                function GetURL(CorpNum : String; UserID : String; TOGO : String) : String; overload;
+                
+                //팝빌 현금영수증연결 url. overload
+                function GetURL(CorpNum : String; TOGO : String) : String; overload;
 
+                
                 //관리번호 사용여부 확인
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
+                
 
                 //즉시발행
-                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String) : TResponse;
+                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = '') : TResponse;
+                
                 //임시저장.
-                function Register(CorpNum : String; Cashbill : TCashbill; UserID : String) : TResponse;
+                function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
+                
                 //수정.
-                function Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String) : TResponse;
+                function Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
                 //발행.
-                function Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
+                function Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
+                
                 //발행취소.
-                function CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
+                function CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
 
                 //삭제.
-                function Delete(CorpNum : String;  MgtKey: String; UserID : String) : TResponse;
+                function Delete(CorpNum : String;  MgtKey: String; UserID : String = '') : TResponse;
 
+                
                 //이메일재전송.
-                function SendEmail(CorpNum : String;  MgtKey :String; Receiver:String; UserID : String) : TResponse;
-                //문자재전송.
-                function SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String) : TResponse;
-                // 팩스 재전송.
-                function SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String) : TResponse;
+                function SendEmail(CorpNum : String;  MgtKey :String; Receiver:String; UserID : String = '') : TResponse;
 
+                //문자재전송.
+                function SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String = '') : TResponse;
+
+                // 팩스 재전송.
+                function SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String = '') : TResponse;
+
+                
                 //현금영수증 목록조회
                 function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList; overload;
+                
                 //현금영수증 목록조회
                 function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList; overload;
 
+
                 //현금영수증 요약정보 및 상태정보 확인.
                 function GetInfo(CorpNum : string; MgtKey: string) : TCashbillInfo;
-                
+
                 //현금영수증 상세정보 확인
                 function GetDetailInfo(CorpNum : string; MgtKey: string) : TCashbill;
 
                 //현금영수증 요약정보 및 상태 다량 확인.
                 function GetInfos(CorpNum : string; MgtKeyList: Array Of String) : TCashbillInfoList;
+
+
                 //문서이력 확인.
                 function GetLogs(CorpNum : string; MgtKey: string) : TCashbillLogList;
-               
+
+
                 //팝업URL
-                function GetPopUpURL(CorpNum: string; MgtKey : String; UserID: String) : string;
+                function GetPopUpURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
                 //인쇄URL
-                function GetPrintURL(CorpNum: string; MgtKey : String; UserID: String) : string;
+                function GetPrintURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
                 //공급받는자 인쇄URL
-                function GetEPrintURL(CorpNum: string; MgtKey : String; UserID: String) : string;
+                function GetEPrintURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
                 //다량인쇄URL
-                function GetMassPrintURL(CorpNum: string; MgtKeyList: Array Of String; UserID: String) : string;
+                function GetMassPrintURL(CorpNum: string; MgtKeyList: Array Of String; UserID: String = '') : string;
 
                 //Mail URL
-                function GetMailURL(CorpNum: string; MgtKey : String; UserID: String) : string;
+                function GetMailURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
 
                 // 현금영수증 발행단가 확인.
                 function GetUnitCost(CorpNum : String) : Single;
@@ -318,6 +339,11 @@ begin
         end;
 end;
 
+function TCashbillService.GetURL(CorpNum : String; TOGO : String) : String;
+begin
+        result := GetURL(CorpNum, '', TOGO);
+end;
+
 function TCashbillService.GetURL(CorpNum : String; UserID : String; TOGO : String) : String;
 var
         responseJson : String;
@@ -400,7 +426,7 @@ begin
 end;
 
 
-function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String) : TResponse;
+function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -425,7 +451,7 @@ begin
         end;
 end;
 
-function TCashbillService.Register(CorpNum : String; Cashbill : TCashbill; UserID : String) : TResponse;
+function TCashbillService.Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -449,7 +475,7 @@ begin
         end;
 end;
 
-function TCashbillService.Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String) : TResponse;
+function TCashbillService.Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -481,7 +507,7 @@ begin
         end;
 end;
 
-function TCashbillService.Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
+function TCashbillService.Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -513,7 +539,7 @@ begin
         end;
 end;
 
-function TCashbillService.CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String) : TResponse;
+function TCashbillService.CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -545,7 +571,7 @@ end;
 
 
 
-function TCashbillService.SendEmail(CorpNum : String; MgtKey :String; Receiver:String; UserID : String) : TResponse;
+function TCashbillService.SendEmail(CorpNum : String; MgtKey :String; Receiver:String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -578,7 +604,7 @@ begin
         end;
 end;
 
-function TCashbillService.SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String) : TResponse;
+function TCashbillService.SendSMS(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; Contents : String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -609,7 +635,7 @@ begin
         end;
 end;
 
-function TCashbillService.SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String) : TResponse;
+function TCashbillService.SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -929,7 +955,7 @@ begin
 end;
 
 
-function TCashbillService.Delete(CorpNum : String; MgtKey: String; UserID : String) : TResponse;
+function TCashbillService.Delete(CorpNum : String; MgtKey: String; UserID : String = '') : TResponse;
 var
         responseJson : string;
 begin
@@ -957,7 +983,7 @@ begin
 end;
 
 
-function TCashbillService.GetPopUpURL(CorpNum: string; MgtKey : String;UserID : String) : string;
+function TCashbillService.GetPopUpURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
 var
         responseJson : String;
 begin
@@ -972,7 +998,7 @@ begin
         result := getJSonString(responseJson,'url');
 end;
 
-function TCashbillService.GetPrintURL(CorpNum: string; MgtKey : String;UserID : String) : string;
+function TCashbillService.GetPrintURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
 var
         responseJson : String;
 begin
@@ -987,7 +1013,7 @@ begin
         result := getJSonString(responseJson,'url');
 end;
 
-function TCashbillService.GetEPrintURL(CorpNum: string; MgtKey : String;UserID : String) : string;
+function TCashbillService.GetEPrintURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
 var
         responseJson : String;
 begin
@@ -1002,7 +1028,7 @@ begin
         result := getJSonString(responseJson,'url');
 end;
 
-function TCashbillService.GetMassPrintURL(CorpNum: string; MgtKeyList: Array Of String; UserID: String) : string;
+function TCashbillService.GetMassPrintURL(CorpNum: string; MgtKeyList: Array Of String; UserID: String = '') : string;
 var
         requestJson,responseJson:string;
         i : integer;
@@ -1028,7 +1054,7 @@ begin
 
 end;
 
-function TCashbillService.GetMailURL(CorpNum: string; MgtKey : String;UserID : String) : string;
+function TCashbillService.GetMailURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
 var
         responseJson : String;
 begin
