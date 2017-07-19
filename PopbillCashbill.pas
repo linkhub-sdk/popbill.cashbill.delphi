@@ -407,7 +407,9 @@ begin
         if Cashbill.faxsendYN then
         requestJson := requestJson + '"faxsendYN":true,';
 
+        requestJson := requestJson + '"orgTradeDate":"'+ EscapeString(Cashbill.orgTradeDate) +'",';
         requestJson := requestJson + '"orgConfirmNum":"'+ EscapeString(Cashbill.orgConfirmNum) +'"';
+
 
         requestJson := requestJson + '}';
 
