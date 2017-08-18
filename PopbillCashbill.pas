@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2017-07-19
+* Updated : 2017-08-18
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -149,7 +149,15 @@ type
                 
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
+
+
+                //취소현금영수증 즉시발행
+                function RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; UserID : String = '') : TResponse;
+
+                //취소현금영수증 임시저장
+                function RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; UserID : String = '') : TResponse;
                 
+
                 //수정.
                 function Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
@@ -465,6 +473,72 @@ begin
                 end;
         end;
 end;
+
+// 취소현금영수증 즉시발행 추가. 2017/08/18
+function TCashbillService.RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; userID : String = '') : TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        try
+                requestJson := '{"mgtKey":"'+EscapeString(mgtKey)+'","orgConfirmNum":"'+EscapeString(orgConfirmNum) + '",';
+                requestJson := requestJson + '"orgTradeDate":"'+EscapeString(orgTradeDate) + '",';
+                
+                if smssendYN then
+                requestJson := requestJson + '"smssendYN":true,';
+                
+                requestJson := requestJson + '"memo":"'+EscapeString(memo) + '"}';
+               
+                responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'REVOKEISSUE');
+                
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
+end;
+
+// 취소현금영수증 임시저장 추가. 2017/08/18
+function TCashbillService.RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; userID : String = '') : TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        try
+                requestJson := '{"mgtKey":"'+EscapeString(mgtKey)+'","orgConfirmNum":"'+EscapeString(orgConfirmNum) + '",';
+                requestJson := requestJson + '"orgTradeDate":"'+EscapeString(orgTradeDate) + '",';
+                
+                if smssendYN then
+                requestJson := requestJson + '"smssendYN":true,';
+                
+                requestJson := requestJson + '"}';
+               
+                responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'REVOKE');
+                
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
+end;
+
+
 
 function TCashbillService.Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 var
