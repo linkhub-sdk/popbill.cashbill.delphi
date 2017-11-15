@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2017-08-18
+* Updated : 2017-11-15
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -62,6 +62,7 @@ type
                 confirmNum           : string;
                 orgConfirmNum        : string;
                 orgTradeDate         : string;
+                cancelType           : Integer;
 
         end;
 
@@ -150,12 +151,13 @@ type
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
-
                 //취소현금영수증 즉시발행
-                function RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; UserID : String = '') : TResponse;
+                function RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; UserID : String = '';
+                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
 
                 //취소현금영수증 임시저장
-                function RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; UserID : String = '') : TResponse;
+                function RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; UserID : String = '';
+                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
                 
 
                 //수정.
@@ -475,7 +477,8 @@ begin
 end;
 
 // 취소현금영수증 즉시발행 추가. 2017/08/18
-function TCashbillService.RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; userID : String = '') : TResponse;
+function TCashbillService.RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; userID : String = '';
+        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -483,10 +486,21 @@ begin
         try
                 requestJson := '{"mgtKey":"'+EscapeString(mgtKey)+'","orgConfirmNum":"'+EscapeString(orgConfirmNum) + '",';
                 requestJson := requestJson + '"orgTradeDate":"'+EscapeString(orgTradeDate) + '",';
-                
+
                 if smssendYN then
                 requestJson := requestJson + '"smssendYN":true,';
-                
+
+                if isPartCancel then
+                requestJson := requestJson + '"isPartCancel":true,';
+
+                if cancelType > 0 then
+                requestJson := requestJson + '"cancelType":"' + IntToStr(cancelType) + '",';
+
+                requestJson := requestJson + '"supplyCost":"' + EscapeString(supplyCost) + '",';
+                requestJson := requestJson + '"tax":"' + EscapeString(tax) + '",';
+                requestJson := requestJson + '"serviceFee":"' + EscapeString(serviceFee) + '",';
+                requestJson := requestJson + '"totalAmount":"' + EscapeString(totalAmount) + '",';
+
                 requestJson := requestJson + '"memo":"'+EscapeString(memo) + '"}';
                
                 responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'REVOKEISSUE');
@@ -507,7 +521,8 @@ begin
 end;
 
 // 취소현금영수증 임시저장 추가. 2017/08/18
-function TCashbillService.RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; userID : String = '') : TResponse;
+function TCashbillService.RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; userID : String = '';
+         isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -518,6 +533,17 @@ begin
                 
                 if smssendYN then
                 requestJson := requestJson + '"smssendYN":true,';
+
+                if isPartCancel then
+                requestJson := requestJson + '"isPartCancel":true,';
+
+                if cancelType > 0 then
+                requestJson := requestJson + '"cancelType":"' + IntToStr(cancelType) + '",';
+
+                requestJson := requestJson + '"supplyCost":"' + EscapeString(supplyCost) + '",';
+                requestJson := requestJson + '"tax":"' + EscapeString(tax) + '",';
+                requestJson := requestJson + '"serviceFee":"' + EscapeString(serviceFee) + '",';
+                requestJson := requestJson + '"totalAmount":"' + EscapeString(totalAmount) + '",';
                 
                 requestJson := requestJson + '"}';
                
@@ -817,6 +843,7 @@ begin
         
         result.orgConfirmNum         := getJSonString(json,'orgConfirmNum');
         result.orgTradeDate          := getJSonString(json,'orgTradeDate');
+        result.cancelType          := getJSonInteger(json,'cancelType');        
      
 end;
 
