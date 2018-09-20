@@ -11,6 +11,8 @@
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
 * Updated : 2017-11-15
+* Contributor : Kim EunHye (code@linkhub.co.kr)
+* Updated : 2018-09-20
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -124,6 +126,13 @@ type
 
         TCashbillLogList = Array Of TCashbillLog;
 
+        TEmailConfig = class
+        public
+                EmailType : String;
+                SendYN    : Boolean;
+        end;
+
+        TEmailConfigList = Array of TEmailConfig;
 
         TCashbillService = class(TPopbillBaseService)
         private
@@ -225,6 +234,12 @@ type
 
                 // 과금정보 확인
                 function GetChargeInfo(CorpNum : String) : TCashbillChargeInfo;
+
+                // 알림메일 전송목록 조회
+                function ListEmailConfig(CorpNum : String; UserID : String = '') : TEmailConfigList;
+
+                // 알림메일 전송설정 수정
+                function UpdateEmailConfig(CorpNum : String; EmailType : String; SendYN : Boolean; UserID : String = '') : TResponse;
 
         end;
 
@@ -1171,4 +1186,74 @@ begin
 end;
 
 //End Of Unit.
+function TCashbillService.ListEmailConfig(CorpNum, UserID: String): TEmailConfigList;
+var
+        responseJson : string;
+        jSons : ArrayOfString;
+        i : integer;
+begin
+        responseJson := httpget('/Cashbill/EmailSendConfig',CorpNum,UserID);
+
+        try
+                jSons := ParseJsonList(responseJson);
+                SetLength(result,Length(jSons));
+
+                for i := 0 to Length(jSons)-1 do
+                begin
+                        result[i] := TEmailConfig.Create;
+
+                        result[i].EmailType := getJSonString (jSons[i],'emailType');
+                        result[i].SendYN    := getJSonBoolean(jSons[i],'sendYN');
+                end;
+        except on E:Exception do
+                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
+        end;
+end;
+
+Function BoolToStr(b:Boolean):String;
+begin
+    if b = true then BoolToStr:='True';
+    if b = false then BoolToStr:='False';
+end;
+
+function TCashbillService.UpdateEmailConfig(CorpNum, EmailType: String; SendYN: Boolean; UserID: String): TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        if Trim(CorpNum) = '' then
+        begin
+                result.code := -99999999;
+                result.message := '연동회원 사업자번호가 입력되지 않았습니다.';
+                Exit;
+        end;
+
+        if Trim(EmailType) = '' then
+        begin
+                result.code := -99999999;
+                result.message := '메일전송유형이 입력되지 않았습니다.';
+                Exit;
+        end;
+
+        try
+                requestJson := '{"EmailType":"'+EscapeString(EmailType)+'","SendYN":"'+EscapeString(BoolToStr(SendYN))+'"}';
+
+                responseJson := httppost('/Cashbill/EmailSendConfig?EmailType=' + EmailType + '&SendYN=' + BoolToStr(SendYN),
+                                        CorpNum,UserID,requestJson,'');
+
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
+end;
+
 end.
