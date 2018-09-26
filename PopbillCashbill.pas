@@ -12,7 +12,7 @@
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
 * Updated : 2017-11-15
 * Contributor : Kim EunHye (code@linkhub.co.kr)
-* Updated : 2018-09-20
+* Updated : 2018-09-26
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -36,36 +36,33 @@ type
         TCashbill = class
         public
                 mgtKey               : string;
+                orgConfirmNum        : string;
+                orgTradeDate         : string;
+                tradeDate            : string;
                 tradeType            : string;
                 tradeUsage           : string;
+                tradeOpt             : string;
                 taxationType         : string;
-                tradeDate            : string;
-
+                totalAmount          : string;
                 supplyCost           : string;
                 tax                  : string;
                 serviceFee           : string;
-                totalAmount          : string;
                 franchiseCorpNum     : string;
                 franchiseCorpName    : string;
                 franchiseCEOName     : string;
                 franchiseAddr        : string;
                 franchiseTEL         : string;
-
                 identityNum          : string;
                 customerName         : string;
                 itemName             : string;
                 orderNumber          : string;
                 email                : string;
-
                 hp                   : string;
                 fax                  : string;
                 smssendYN            : Boolean;
                 faxsendYN            : Boolean;
                 confirmNum           : string;
-                orgConfirmNum        : string;
-                orgTradeDate         : string;
                 cancelType           : Integer;
-
         end;
 
         TCashbillInfo = class
@@ -73,31 +70,28 @@ type
                 itemKey              : string;
                 mgtKey               : string;
                 tradeDate            : string;
-                tradeUsage            : string;                
-                issueDT              : string;
-                customerName         : string;
-                itemName             : string;
-                identityNum          : string;
-                taxationType         : string;
-
-                totalAmount          : string;
                 tradeType            : string;
+                tradeUsage           : string;
+                tradeOpt             : string;
+                taxationType         : string;
+                totalAmount          : string;
+                issueDT              : string;
+                regDT                : string;
+                stateMemo            : string;
                 stateCode            : Integer;
                 stateDT              : string;
-                printYN              : Boolean;
-
+                identityNum          : string;
+                itemName             : string;
+                customerName         : string;
                 confirmNum           : string;
-                orgTradeDate         : string;
                 orgConfirmNum        : string;
-
+                orgTradeDate         : string;
                 ntssendDT            : string;
-                ntsresult            : string;
                 ntsresultDT          : string;
                 ntsresultCode        : string;
                 ntsresultMessage     : string;
-                regDT                : string;
-
-
+                printYN              : Boolean;
+                ntsresult            : string;
         end;
 
         TCashbillInfoList = Array of TCashbillInfo;
@@ -191,12 +185,19 @@ type
                 // 팩스 재전송.
                 function SendFAX(CorpNum : String; MgtKey :String; Sender:String; Receiver:String; UserID : String = '') : TResponse;
 
-                
+
                 //현금영수증 목록조회
                 function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList; overload;
-                
+
                 //현금영수증 목록조회
                 function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList; overload;
+
+                //현금영수증 목록조회
+                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; Page:Integer; PerPage: Integer; Order : String; TradeOpt : Array of String) : TCashbillSearchList; overload;
+
+                //현금영수증 목록조회
+                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String; TradeOpt : Array of String) : TCashbillSearchList; overload;
+
 
 
                 //현금영수증 요약정보 및 상태정보 확인.
@@ -405,6 +406,7 @@ begin
 
         requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
         requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
+        requestJson := requestJson + '"tradeOpt":"'+ EscapeString(Cashbill.tradeOpt) +'",';
         requestJson := requestJson + '"tradeType":"'+ EscapeString(Cashbill.tradeType) +'",';
         requestJson := requestJson + '"taxationType":"'+ EscapeString(Cashbill.taxationType) +'",';
         requestJson := requestJson + '"supplyCost":"'+ EscapeString(Cashbill.supplyCost) +'",';
@@ -780,28 +782,28 @@ begin
         result.itemKey := getJSonString(json,'itemKey');
         result.mgtKey := getJSonString(json,'mgtKey');
         result.tradeDate := getJSonString(json,'tradeDate');
-        result.issueDT := getJSonString(json,'issueDT');
-        result.customerName := getJSonString(json,'customerName');
-        result.itemName := getJSonString(json,'itemName');
-        result.identityNum := getJSonString(json,'identityNum');
-        result.taxationType := getJSonString(json,'taxationType');
-
-        result.totalAmount := getJSonString(json,'totalAmount');
-        result.tradeUsage := getJSonString(json,'tradeUsage');
         result.tradeType := getJSonString(json,'tradeType');
+        result.tradeUsage := getJSonString(json,'tradeUsage');
+        result.tradeOpt := getJSonString(json,'tradeOpt');
+        result.taxationType := getJSonString(json,'taxationType');
+        result.totalAmount := getJSonString(json,'totalAmount');
+        result.issueDT := getJSonString(json,'issueDT');
+        result.regDT := getJSonString(json,'regDT');
+        result.stateMemo := getJSonString(json,'stateMemo');
         result.stateCode := getJSonInteger(json,'stateCode');
-        result.printYN := getJSonBoolean(json,'printYN');
-
+        result.stateDT := getJSonString(json,'stateDT');
+        result.identityNum := getJSonString(json,'identityNum');
+        result.itemName := getJSonString(json,'itemName');
+        result.customerName := getJSonString(json,'customerName');
         result.confirmNum := getJSonString(json,'confirmNum');
-        result.orgTradeDate := getJSonString(json,'orgTradeDate');
         result.orgConfirmNum := getJSonString(json,'orgConfirmNum');
-        
+        result.orgTradeDate := getJSonString(json,'orgTradeDate');
         result.ntssendDT := getJSonString(json,'ntssendDT');
         result.ntsresult := getJSonString(json,'ntsresult');
         result.ntsresultDT := getJSonString(json,'ntsresultDT');
         result.ntsresultCode := getJSonString(json,'ntsresultCode');
         result.ntsresultMessage := getJSonString(json,'ntsresultMessage');
-        result.stateDT := getJSonString(json,'stateDT');        
+        result.printYN := getJSonBoolean(json,'printYN');
 end;
 
 function TCashbillService.getInfo(CorpNum : string; MgtKey: string) : TCashbillInfo;
@@ -828,6 +830,7 @@ begin
         result.mgtKey                := getJSonString(json,'mgtKey');
         result.tradeDate             := getJSonString(json,'tradeDate');
         result.tradeUsage            := getJSonString(json,'tradeUsage');
+        result.tradeOpt              := getJSonString(json,'tradeOpt');
         result.tradeType             := getJSonString(json,'tradeType');
 
         result.taxationType          := getJSonString(json,'taxationType');
@@ -916,11 +919,27 @@ begin
 end;
 
 function TCashbillService.Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String;Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList;
+var
+  emptyList : Array of String;
 begin
-        result := Search(CorpNum, DType, SDate, EDate, State, TradeType, TradeUsage, TaxationType, '', Page, PerPage, Order);
+        SetLength(emptyList, 0);
+        result := Search(CorpNum, DType, SDate, EDate, State, TradeType, TradeUsage, TaxationType, '', Page, PerPage, Order, emptyList);
 end;
 
 function TCashbillService.Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String) : TCashbillSearchList;
+var
+  emptyList : Array of String;
+begin
+        SetLength(emptyList, 0);
+        result := Search(CorpNum, DType, SDate, EDate, State, TradeType, TradeUsage, TaxationType, QString, Page, PerPage, Order, emptyList);
+end;
+
+function TCashbillService.Search(CorpNum, DType, SDate, EDate: String; State, TradeType, TradeUsage, TaxationType: array of String; Page, PerPage: Integer; Order: String; TradeOpt: array of String): TCashbillSearchList;
+begin
+        result := Search(CorpNum, DType, SDate, EDate, State, TradeType, TradeUsage, TaxationType, '', Page, PerPage, Order, TradeOpt);
+end;
+
+function TCashbillService.Search(CorpNum, DType, SDate, EDate: String; State, TradeType, TradeUsage, TaxationType: array of String; QString: String; Page, PerPage: Integer; Order: String; TradeOpt: array of String): TCashbillSearchList;
 var
         responseJson : String;
         uri : String;
@@ -928,6 +947,7 @@ var
         TradeTypeList : String;
         TradeUsageList : String;
         TaxationTypeList : String;
+        TradeOptList : String;
         i : integer;
         jSons : ArrayOfString;
 
@@ -956,6 +976,20 @@ begin
                         end
                         else begin
                                 TradeTypeList := TradeTypeList + TradeType[i] +',';
+                        end;
+                end
+        end;
+
+        for i := 0 to High(TradeOpt) do
+        begin
+                if TradeOpt[i] <> '' Then
+                begin
+                        if i = High(TradeOpt) Then
+                        begin
+                                TradeOptList := TradeOptList + TradeOpt[i];
+                        end
+                        else begin
+                                TradeOptList := TradeOptList + TradeOpt[i] +',';
                         end;
                 end
         end;
@@ -991,7 +1025,7 @@ begin
 
         uri := '/Cashbill/Search?DType='+DType+'&&SDate='+SDate+'&&EDate='+EDate;
         uri := uri + '&&State='+StateList + '&&TradeType='+TradeTypeList;
-        uri := uri + '&&TradeUsage='+TradeUsageList + '&&TaxationType='+TaxationTypeList;
+        uri := uri + '&&TradeUsage='+TradeUsageList + '&&TradeOpt='+TradeOptList + '&&TaxationType='+TaxationTypeList;
         uri := uri + '&&Page='+IntToStr(Page)+'&&PerPage='+IntToStr(PerPage);
         uri := uri + '&&Order=' + Order;
         uri := uri + '&&QString=' + UrlEncodeUTF8(QString);
@@ -1020,7 +1054,6 @@ begin
                 raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
         end;
 end;
-
 
 function TCashbillService.getInfos(CorpNum : string; MgtKeyList: Array Of String) : TCashbillInfoList;
 var
@@ -1255,5 +1288,6 @@ begin
                 end;
         end;
 end;
+
 
 end.
