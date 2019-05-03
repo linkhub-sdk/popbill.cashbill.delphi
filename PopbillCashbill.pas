@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2019-03-18
+* Updated : 2019-05-03
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -135,13 +135,13 @@ type
 
         public
                 constructor Create(LinkID : String; SecretKey : String);
+                
                 //팝빌 현금영수증연결 url.
                 function GetURL(CorpNum : String; UserID : String; TOGO : String) : String; overload;
                 
                 //팝빌 현금영수증연결 url. overload
                 function GetURL(CorpNum : String; TOGO : String) : String; overload;
 
-                
                 //관리번호 사용여부 확인
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
                 
