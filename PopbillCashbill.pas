@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2019-05-03
+* Updated : 2019-11-28
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -61,6 +61,7 @@ type
                 faxsendYN            : Boolean;
                 confirmNum           : string;
                 cancelType           : Integer;
+                emailSubject         : string;                
         end;
 
         TCashbillInfo = class
@@ -145,10 +146,9 @@ type
                 //관리번호 사용여부 확인
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
                 
-
                 //즉시발행
-                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = '') : TResponse;
-                
+                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
@@ -418,6 +418,7 @@ begin
         requestJson := '{';
 
         requestJson := requestJson + '"memo":"'+ Memo +'",';
+        requestJson := requestJson + '"emailSubject":"'+ EscapeString(Cashbill.emailSubject) +'",';
 
         requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
         requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
@@ -458,13 +459,19 @@ begin
         result := requestJson;
 end;
 
-
-function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = '') : TResponse;
+function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
 var
         requestJson : string;
         responseJson : string;
 begin
         try
+                if EmailSubject <> '' then
+                begin
+                        Cashbill.emailSubject := EmailSubject;
+                end;
+
+
+
                 requestJson := TCashbillTojson(Cashbill, Memo);
                 responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'ISSUE');
         except
