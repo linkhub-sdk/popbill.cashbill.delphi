@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2019-11-28
+* Updated : 2020-07-22
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -217,6 +217,8 @@ type
 
                 //인쇄URL
                 function GetPrintURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
+                function GetPDFURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;                
 
                 //공급받는자 인쇄URL
                 function GetEPrintURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
@@ -1559,6 +1561,40 @@ begin
 
         try
                 responseJson := httpget('/Cashbill/'+MgtKey +'?TG=PRINT',CorpNum,UserID);
+                result := getJSonString(responseJson,'url');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.message);
+                                exit;
+                        end;
+                end;
+        end;
+end;
+
+function TCashbillService.GetPDFURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
+var
+        responseJson : String;
+begin
+        if MgtKey = '' then
+        begin
+                if FIsThrowException then
+                begin
+                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        Exit;
+                end
+                else
+                begin
+                        result := '';
+                        setLastErrCode(-99999999);
+                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        exit;
+                end;
+        end;
+
+        try
+                responseJson := httpget('/Cashbill/'+MgtKey +'?TG=PDF',CorpNum,UserID);
                 result := getJSonString(responseJson,'url');
         except
                 on le : EPopbillException do begin
