@@ -242,6 +242,8 @@ type
                 // 알림메일 전송설정 수정
                 function UpdateEmailConfig(CorpNum : String; EmailType : String; SendYN : Boolean; UserID : String = '') : TResponse;
 
+                function AssignMgtKey(CorpNum : String; ItemKey : String; MgtKey : String; UserID: String = '') : TResponse;
+
         end;
 
 
@@ -1867,6 +1869,57 @@ begin
                 result.code := getJSonInteger(responseJson,'code');
                 result.message := getJSonString(responseJson,'message');
         end;
+end;
+
+function TCashbillService.AssignMgtKey(CorpNum : String; ItemKey : String; MgtKey : String; UserID : String = '') : TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+
+        if MgtKey = '' then
+        begin
+                if FIsThrowException then
+                begin
+                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        Exit;
+                end
+                else
+                begin
+                        result.code := -99999999;
+                        result.message := '관리번호가 입력되지 않았습니다.';
+                        exit;
+                end;
+
+        end;
+
+        try
+                requestJson := 'MgtKey='+EscapeString(MgtKey);
+
+                responseJson := httppost('/Cashbill/'+ItemKey,
+                                        CorpNum,UserID,requestJson,'','application/x-www-form-urlencoded; charset=utf-8');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                        end;
+
+                        result.code := le.code;
+                        result.message := le.Message;
+                end;
+        end;
+        
+        if LastErrCode <> 0 then
+        begin
+                result.code := LastErrCode;
+                result.message := LastErrMessage;
+        end
+        else
+        begin
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');                
+        end;        
 end;
 
 
