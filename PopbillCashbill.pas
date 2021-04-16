@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2020-07-22
+* Updated : 2021-04-16
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -143,7 +143,7 @@ type
                 //팝빌 현금영수증연결 url. overload
                 function GetURL(CorpNum : String; TOGO : String) : String; overload;
 
-                //관리번호 사용여부 확인
+                //문서번호 사용여부 확인
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
                 
                 //즉시발행
@@ -214,6 +214,8 @@ type
 
                 //팝업URL
                 function GetPopUpURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
+
+                function GetViewURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;                
 
                 //인쇄URL
                 function GetPrintURL(CorpNum: string; MgtKey : String; UserID: String = '') : string;
@@ -1529,6 +1531,41 @@ begin
 
         try
                 responseJson := httpget('/Cashbill/'+MgtKey +'?TG=POPUP',CorpNum,UserID);
+                result := getJSonString(responseJson,'url');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code, le.message);
+                                exit;
+                        end;
+                end;
+        end;
+end;
+
+function TCashbillService.GetViewURL(CorpNum: string; MgtKey : String; UserID : String = '') : string;
+var
+        responseJson : String;
+begin
+        if MgtKey = '' then
+        begin
+                if FIsThrowException then
+                begin
+                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        Exit;
+                end
+                else
+                begin
+                        result := '';
+                        setLastErrCode(-99999999);
+                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        exit;
+                end;
+
+        end;
+
+        try
+                responseJson := httpget('/Cashbill/'+MgtKey +'?TG=VIEW',CorpNum,UserID);
                 result := getJSonString(responseJson,'url');
         except
                 on le : EPopbillException do begin
