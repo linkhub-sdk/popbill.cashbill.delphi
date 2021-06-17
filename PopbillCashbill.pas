@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2021-04-16
+* Updated : 2021-06-17
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -390,12 +390,12 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end;
                 result := false;
                 setLastErrCode(-99999999);
-                setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                setLastErrMessage('문서번호가 입력되지 않았습니다.');
                 exit;
         end;
 
@@ -664,13 +664,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit;
                 end;
         end;
@@ -716,13 +716,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit;
                 end;
         end;
@@ -767,13 +767,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit;
                 end;
 
@@ -820,13 +820,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;                
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit; 
                 end;
 
@@ -873,13 +873,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit;
                 end;
         end;
@@ -926,17 +926,17 @@ begin
 
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit; 
                 end;
         end;
-        
+
         try
                 requestJson := '{"sender":"'+EscapeString(Sender)+'","receiver":"'+EscapeString(Receiver)+'"}';
 
@@ -1010,14 +1010,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := TCashbillInfo.Create;
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1094,14 +1094,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := TCashbill.Create();
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
         end;
@@ -1134,14 +1134,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;                
                 end
                 else
                 begin
                         SetLength(result,0);
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1396,14 +1396,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         SetLength(result, 0);
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
         end;
@@ -1466,13 +1466,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit; 
                 end;
         end;
@@ -1516,14 +1516,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1551,14 +1551,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1586,14 +1586,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
         end;
@@ -1620,14 +1620,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
         end;
@@ -1654,14 +1654,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1690,14 +1690,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
 
@@ -1735,14 +1735,14 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result := '';
                         setLastErrCode(-99999999);
-                        setLastErrMessage('관리번호가 입력되지 않았습니다.');
+                        setLastErrMessage('문서번호가 입력되지 않았습니다.');
                         exit;
                 end;
         end;
@@ -1918,13 +1918,13 @@ begin
         begin
                 if FIsThrowException then
                 begin
-                        raise EPopbillException.Create(-99999999,'관리번호가 입력되지 않았습니다.');
+                        raise EPopbillException.Create(-99999999,'문서번호가 입력되지 않았습니다.');
                         Exit;
                 end
                 else
                 begin
                         result.code := -99999999;
-                        result.message := '관리번호가 입력되지 않았습니다.';
+                        result.message := '문서번호가 입력되지 않았습니다.';
                         exit;
                 end;
 
