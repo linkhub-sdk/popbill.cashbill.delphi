@@ -10,7 +10,7 @@
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2021-06-17
+* Updated : 2021-11-29
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -148,6 +148,9 @@ type
                 
                 //즉시발행
                 function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+
+                // 타사 취소현금영수증 즉시발행
+                function OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;                
 
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
@@ -480,6 +483,48 @@ begin
 
                 requestJson := TCashbillTojson(Cashbill, Memo);
                 responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'ISSUE');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                                exit;
+                        end
+                        else
+                        begin
+                                result.code := le.code;
+                                result.message := le.Message;
+                        end;
+                end;
+        end;
+
+        if LastErrCode <> 0 then
+        begin
+                result.code := LastErrCode;
+                result.message := LastErrMessage;
+        end
+        else
+        begin
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');        
+        end;
+end;
+
+function TCashbillService.OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        try
+                if EmailSubject <> '' then
+                begin
+                        Cashbill.emailSubject := EmailSubject;
+                end;
+
+
+
+                requestJson := TCashbillTojson(Cashbill, Memo);
+                responseJson := httppost('/Cashbill',CorpNum,UserID,requestJson, 'REVOKEOUTERISSUE');
         except
                 on le : EPopbillException do begin
                         if FIsThrowException then
