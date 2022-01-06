@@ -46,6 +46,7 @@ type
                 tax                  : string;
                 serviceFee           : string;
                 franchiseCorpNum     : string;
+                franchiseTaxRegID     : string;
                 franchiseCorpName    : string;
                 franchiseCEOName     : string;
                 franchiseAddr        : string;
@@ -198,6 +199,9 @@ type
 
                 //현금영수증 목록조회
                 function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String; TradeOpt : Array of String) : TCashbillSearchList; overload;
+
+                //현금영수증 목록조회
+                function Search(CorpNum : String; DType : String; SDate : String; EDate : String; State:Array Of String; TradeType:Array Of String; TradeUsage: Array Of String; TaxationType : Array Of String; QString:String; Page:Integer; PerPage: Integer; Order : String; TradeOpt : Array of String; FranchiseTaxRegID : String) : TCashbillSearchList; overload;
 
 
 
@@ -440,6 +444,7 @@ begin
         requestJson := requestJson + '"totalAmount":"'+ EscapeString(Cashbill.totalAmount) +'",';
         
         requestJson := requestJson + '"franchiseCorpNum":"'+ EscapeString(Cashbill.franchiseCorpNum) +'",';
+        requestJson := requestJson + '"franchiseTaxRegID":"'+ EscapeString(Cashbill.franchiseTaxRegID) +'",';
         requestJson := requestJson + '"franchiseCorpName":"'+ EscapeString(Cashbill.franchiseCorpName) +'",';
         requestJson := requestJson + '"franchiseCEOName":"'+ EscapeString(Cashbill.franchiseCEOName) +'",';
         requestJson := requestJson + '"franchiseAddr":"'+ EscapeString(Cashbill.franchiseAddr) +'",';
@@ -1106,6 +1111,7 @@ begin
         result.totalAmount           := getJSonString(json,'totalAmount');
 
         result.franchiseCorpNum      := getJSonString(json,'franchiseCorpNum');
+        result.franchiseTaxRegID     := getJSonString(json,'franchiseTaxRegID');
         result.franchiseCorpName     := getJSonString(json,'franchiseCorpName');
         result.franchiseCEOName      := getJSonString(json,'franchiseCEOName');
         result.franchiseAddr         := getJSonString(json,'franchiseAddr');
@@ -1275,6 +1281,11 @@ begin
 end;
 
 function TCashbillService.Search(CorpNum, DType, SDate, EDate: String; State, TradeType, TradeUsage, TaxationType: array of String; QString: String; Page, PerPage: Integer; Order: String; TradeOpt: array of String): TCashbillSearchList;
+begin
+        result := Search(CorpNum, DType, SDate, EDate, State, TradeType, TradeUsage, TaxationType, QString, Page, PerPage, Order, TradeOpt, '');
+end;
+
+function TCashbillService.Search(CorpNum, DType, SDate, EDate: String; State, TradeType, TradeUsage, TaxationType: array of String; QString: String; Page, PerPage: Integer; Order: String; TradeOpt: array of String; FranchiseTaxRegID: String): TCashbillSearchList;
 var
         responseJson : String;
         uri : String;
@@ -1364,6 +1375,7 @@ begin
         uri := uri + '&&Page='+IntToStr(Page)+'&&PerPage='+IntToStr(PerPage);
         uri := uri + '&&Order=' + Order;
         uri := uri + '&&QString=' + UrlEncodeUTF8(QString);
+        uri := uri + '&&FranchiseTaxRegID=' + FranchiseTaxRegID;
 
         try
                 responseJson := httpget(uri, CorpNum,'');
