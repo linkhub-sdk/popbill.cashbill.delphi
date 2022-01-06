@@ -23,6 +23,13 @@ uses
         Popbill,
         Linkhub;
 type
+        TCBIssueResponse = Record
+                code : LongInt;
+                message : string;
+                confirmNum : string;
+                tradeDate : string;
+        end;
+
         TCashbillChargeInfo = class
         public
                 unitCost : String;
@@ -148,17 +155,17 @@ type
                 function CheckMgtKeyInUse(CorpNum : String; MgtKey : String) : boolean;
                 
                 //즉시발행
-                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+                function RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;
 
                 // 타사 취소현금영수증 즉시발행
-                function OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;                
+                function OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;                
 
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
                 //취소현금영수증 즉시발행
                 function RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; UserID : String = '';
-                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
+                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TCBIssueResponse;
 
                 //취소현금영수증 임시저장
                 function RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; UserID : String = '';
@@ -169,7 +176,7 @@ type
                 function Update(CorpNum : String; MgtKey : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
 
                 //발행.
-                function Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
+                function Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TCBIssueResponse;
                 
                 //발행취소.
                 function CancelIssue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
@@ -473,7 +480,7 @@ begin
         result := requestJson;
 end;
 
-function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -511,11 +518,13 @@ begin
         else
         begin
                 result.code := getJSonInteger(responseJson,'code');
-                result.message := getJSonString(responseJson,'message');        
+                result.message := getJSonString(responseJson,'message');
+                result.confirmNum := getJSonString(responseJson,'confirmNum');
+                result.tradeDate := getJSonString(responseJson,'tradeDate');
         end;
 end;
 
-function TCashbillService.OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TResponse;
+function TCashbillService.OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -553,7 +562,9 @@ begin
         else
         begin
                 result.code := getJSonInteger(responseJson,'code');
-                result.message := getJSonString(responseJson,'message');        
+                result.message := getJSonString(responseJson,'message');
+                result.confirmNum := getJSonString(responseJson,'confirmNum');
+                result.tradeDate := getJSonString(responseJson,'tradeDate');     
         end;
 end;
 
@@ -594,7 +605,7 @@ end;
 
 // 취소현금영수증 즉시발행 추가. 2017/08/18
 function TCashbillService.RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; userID : String = '';
-        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TResponse;
+        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TCBIssueResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -643,7 +654,9 @@ begin
         else
         begin
                 result.code := getJSonInteger(responseJson,'code');
-                result.message := getJSonString(responseJson,'message');        
+                result.message := getJSonString(responseJson,'message');
+                result.confirmNum := getJSonString(responseJson,'confirmNum');
+                result.tradeDate := getJSonString(responseJson,'tradeDate');  
         end;
 end;
 
@@ -757,7 +770,7 @@ begin
         
 end;
 
-function TCashbillService.Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TResponse;
+function TCashbillService.Issue(CorpNum : String; MgtKey : String; Memo : String; UserID : String = '') : TCBIssueResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -804,7 +817,9 @@ begin
         else
         begin
                 result.code := getJSonInteger(responseJson,'code');
-                result.message := getJSonString(responseJson,'message');        
+                result.message := getJSonString(responseJson,'message');
+                result.confirmNum := getJSonString(responseJson,'confirmNum');
+                result.tradeDate := getJSonString(responseJson,'tradeDate');
         end;
 end;
 
