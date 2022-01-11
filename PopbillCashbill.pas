@@ -9,8 +9,8 @@
 * http://www.popbill.com
 * Author : Kim Seongjun (pallet027@gmail.com)
 * Written : 2014-03-22
-* Contributor : Jeong Yohan (code@linkhub.co.kr)
-* Updated : 2021-11-29
+* Contributor : Jeong Yohan (code@linkhubcorp.com)
+* Updated : 2022-01-06
 * Thanks for your interest. 
 *=================================================================================
 *)
