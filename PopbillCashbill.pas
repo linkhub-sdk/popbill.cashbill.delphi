@@ -7,10 +7,10 @@
 * For strongly secured communications, this module uses SSL/TLS with OpenSSL.
 *
 * http://www.popbill.com
-* Author : Kim Seongjun (pallet027@gmail.com)
+* Author : Kim Seongjun
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
-* Updated : 2022-01-06
+* Updated : 2022-04-07
 * Thanks for your interest. 
 *=================================================================================
 *)
