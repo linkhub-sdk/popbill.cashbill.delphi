@@ -10,7 +10,7 @@
 * Author : Kim Seongjun
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
-* Updated : 2022-04-07
+* Updated : 2022-06-02
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -29,6 +29,38 @@ type
                 confirmNum : string;
                 tradeDate : string;
         end;
+
+        TCBBulkResponse = Record
+                code : LongInt;
+                message : string;
+                receiptID : string;
+        end;
+
+        TBulkCashbillIssueResult = class
+                code : LongInt;
+                mgtKey : string;
+                confirmNum : string;
+                tradeDate : string;
+        end;
+
+        TBulkCashbillIssueResultList = Array of  TBulkCashbillIssueResult;
+
+        TBulkCashbillResult = class
+                code : LongInt;
+                message : string;
+                submitID : string;
+                submitCount : Integer;
+                successCount : Integer;
+                failCount : Integer;
+                txState : Integer;
+                txResultCode : Integer;
+                txStartDT : string;
+                txEndDT : string;
+                receiptDT : string;
+                receiptID : string;
+                issueResult : TBulkCashbillIssueResultList;
+        end;
+
 
         TCashbillChargeInfo = class
         public
@@ -141,6 +173,8 @@ type
                 function jsonToTCashbillInfo(json : String) : TCashbillInfo;
                 function jsonToTCashbill(json : String) : TCashbill;
                 function TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
+                function TCashbillListTojson(CashbillList : Array of TCashbill) : String;
+                function jsonToTBulkCashbillResult(json : String) : TBulkCashbillResult;
 
         public
                 constructor Create(LinkID : String; SecretKey : String);
@@ -159,6 +193,12 @@ type
 
                 // 타사 취소현금영수증 즉시발행
                 function OuterRevokeRegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;                
+
+                //초대량발행 접수
+                function BulkSubmit(CorpNum : String; SubmitID : String; CashbillList : Array Of TCashbill; UserID : String = '') : TCBBulkResponse;
+
+                // 초대량발행 접수결과 확인
+                function GetBulkResult(CorpNum : String; SubmitID : String; UserID : String = '') : TBulkCashbillResult;                
 
                 //임시저장.
                 function Register(CorpNum : String; Cashbill : TCashbill; UserID : String = '') : TResponse;
@@ -430,6 +470,25 @@ begin
 
 end;
 
+function TCashbillService.TCashbillListTojson(CashbillList : Array of TCashbill) : String;
+var
+        requestJson : string;
+        i : integer;
+begin
+        requestJson := '{';
+
+        requestJson := requestJson + '"cashbills":[';
+        for i := 0 to Length(CashbillList)-1 do
+        begin
+               requestJson := requestJson + TCashbillTojson(CashbillList[i],'');
+               if i < Length(CashbillList) - 1 then
+                        requestJson := requestJson + ',';
+        end;
+        requestJson := requestJson + ']';
+        requestJson := requestJson + '}';
+        result := requestJson;
+end;
+
 function TCashbillService.TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
 var
         requestJson : string;
@@ -565,6 +624,128 @@ begin
                 result.message := getJSonString(responseJson,'message');
                 result.confirmNum := getJSonString(responseJson,'confirmNum');
                 result.tradeDate := getJSonString(responseJson,'tradeDate');     
+        end;
+end;
+
+function TCashbillService.BulkSubmit(CorpNum : String; SubmitID : String; CashbillList : Array Of TCashbill; UserID : String = '') : TCBBulkResponse;
+var
+        requestJson : string;
+        responseJson : string;
+begin
+        try
+
+                requestJson := TCashbillListTojson(CashbillList);
+                responseJson := httpbulkpost('/Cashbill',CorpNum,UserID,SubmitID,RequestJson,'BULKISSUE');
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                                exit;
+                        end
+                        else
+                        begin
+                                result.code := le.code;
+                                result.Message := le.Message;
+                        end;
+                end;
+        end;
+
+        if LastErrCode <> 0 then
+        begin
+                result.code := LastErrCode;
+                result.message := LastErrMessage;
+        end
+        else
+        begin
+                result.code := getJSonInteger(responseJson,'code');
+                result.message := getJSonString(responseJson,'message');
+                result.receiptID := getJSonString(responseJson,'receiptID');
+        end; 
+end;
+
+function TCashbillService.jsonToTBulkCashbillResult(json : String) : TBulkCashbillResult;
+var
+        jsons : ArrayOfString;
+        i : Integer;
+begin
+        try
+                result := TBulkCashbillResult.Create;
+                result.code := getJSonInteger(json,'code');
+                result.message := getJSonString(json,'message');
+                result.submitID := getJSonString(json,'submitID');
+                result.submitCount := getJSonInteger(json,'submitCount');
+                result.successCount := getJSonInteger(json,'successCount');
+                result.failCount := getJSonInteger(json,'failCount');
+                result.txState := getJSonInteger(json,'txState');
+                result.txResultCode := getJSonInteger(json,'txResultCode');
+                result.txStartDT := getJSonString(json,'txStartDT');
+                result.txEndDT := getJSonString(json,'txEndDT');
+                result.receiptDT := getJSonString(json,'receiptDT');
+                result.receiptID := getJSonString(json,'receiptID');
+
+                jSons := getJSonList(json, 'issueResult');
+                SetLength(result.issueResult, Length(jSons));
+
+                for i:=0 to Length(jSons)-1 do
+                begin
+                        result.issueResult[i] := TBulkCashbillIssueResult.Create;
+                        result.issueResult[i].code := getJSonInteger(jSons[i],'code');
+                        result.issueResult[i].mgtKey := getJSonString(jSons[i],'mgtKey');
+                        result.issueResult[i].confirmNum := getJSonString(jSons[i],'confirmNum');
+                        result.issueResult[i].tradeDate := getJSonString(jSons[i],'tradeDate');
+                end;
+        except
+                on E:Exception do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
+                                exit;
+                        end
+                        else
+                        begin
+                                result := TBulkCashbillResult.Create;
+                                result.code := -99999999;
+                                result.message := '결과처리 실패.[Malformed Json]';
+                                exit;
+                        end;
+                end;
+        end;
+end;
+
+function TCashbillService.GetBulkResult(CorpNum : String; SubmitID : String; UserID : String = '') : TBulkCashbillResult;
+var
+        responseJson : string;
+begin
+        if SubmitID = '' then
+        begin
+                if FIsThrowException then
+                begin
+                        raise EPopbillException.Create(-99999999,'제출아이디가 입력되지 않았습니다.');
+                        Exit;
+                end
+                else
+                begin
+                        result := TBulkCashbillResult.Create;
+                        setLastErrCode(-99999999);
+                        setLastErrMessage('제출아이디가 입력되지 않았습니다.');
+                        Exit;
+                end;
+        end;
+
+        try
+                responseJson := httpget('/Cashbill/BULK/'+ SubmitID + '/State' , CorpNum, UserID);
+                result := jsonToTBulkCashbillResult(responseJson);
+        except
+                on le : EPopbillException do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(le.code,le.Message);
+                                exit;
+                        end;
+                        result := TBulkCashbillResult.Create;
+                        exit;
+                end; 
         end;
 end;
 
