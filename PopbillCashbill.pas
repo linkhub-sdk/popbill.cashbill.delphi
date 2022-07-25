@@ -10,7 +10,7 @@
 * Author : Kim Seongjun
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
-* Updated : 2022-06-02
+* Updated : 2022-07-25
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -38,6 +38,7 @@ type
 
         TBulkCashbillIssueResult = class
                 code : LongInt;
+                message : string;
                 mgtKey : string;
                 confirmNum : string;
                 tradeDate : string;
@@ -692,6 +693,7 @@ begin
                         result.issueResult[i] := TBulkCashbillIssueResult.Create;
                         result.issueResult[i].code := getJSonInteger(jSons[i],'code');
                         result.issueResult[i].mgtKey := getJSonString(jSons[i],'mgtKey');
+                        result.issueResult[i].message := getJSonString(jSons[i],'message');
                         result.issueResult[i].confirmNum := getJSonString(jSons[i],'confirmNum');
                         result.issueResult[i].tradeDate := getJSonString(jSons[i],'tradeDate');
                 end;
