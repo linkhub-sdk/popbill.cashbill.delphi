@@ -10,7 +10,7 @@
 * Author : Kim Seongjun
 * Written : 2014-03-22
 * Contributor : Jeong Yohan (code@linkhubcorp.com)
-* Updated : 2022-07-25
+* Updated : 2022-11-15
 * Thanks for your interest. 
 *=================================================================================
 *)
@@ -24,42 +24,44 @@ uses
         Linkhub;
 type
         TCBIssueResponse = Record
-                code : LongInt;
-                message : string;
-                confirmNum : string;
-                tradeDate : string;
+                code            : LongInt;
+                message         : string;
+                confirmNum      : string;
+                tradeDate       : string;
+                tradeDT         : string;
         end;
 
         TCBBulkResponse = Record
-                code : LongInt;
-                message : string;
-                receiptID : string;
+                code            : LongInt;
+                message         : string;
+                receiptID       : string;
         end;
 
         TBulkCashbillIssueResult = class
-                code : LongInt;
-                message : string;
-                mgtKey : string;
-                confirmNum : string;
-                tradeDate : string;
+                code            : LongInt;
+                message         : string;
+                mgtKey          : string;
+                confirmNum      : string;
+                tradeDate       : string;
+                tradeDT         : string;
         end;
 
         TBulkCashbillIssueResultList = Array of  TBulkCashbillIssueResult;
 
         TBulkCashbillResult = class
-                code : LongInt;
-                message : string;
-                submitID : string;
-                submitCount : Integer;
-                successCount : Integer;
-                failCount : Integer;
-                txState : Integer;
-                txResultCode : Integer;
-                txStartDT : string;
-                txEndDT : string;
-                receiptDT : string;
-                receiptID : string;
-                issueResult : TBulkCashbillIssueResultList;
+                code            : LongInt;
+                message         : string;
+                submitID        : string;
+                submitCount     : Integer;
+                successCount    : Integer;
+                failCount       : Integer;
+                txState         : Integer;
+                txResultCode    : Integer;
+                txStartDT       : string;
+                txEndDT         : string;
+                receiptDT       : string;
+                receiptID       : string;
+                issueResult     : TBulkCashbillIssueResultList;
         end;
 
 
@@ -76,7 +78,8 @@ type
                 mgtKey               : string;
                 orgConfirmNum        : string;
                 orgTradeDate         : string;
-                tradeDate            : string;
+                tradeDate            : string; 
+                tradeDT              : string;
                 tradeType            : string;
                 tradeUsage           : string;
                 tradeOpt             : string;
@@ -86,7 +89,7 @@ type
                 tax                  : string;
                 serviceFee           : string;
                 franchiseCorpNum     : string;
-                franchiseTaxRegID     : string;
+                franchiseTaxRegID    : string;
                 franchiseCorpName    : string;
                 franchiseCEOName     : string;
                 franchiseAddr        : string;
@@ -102,7 +105,7 @@ type
                 faxsendYN            : Boolean;
                 confirmNum           : string;
                 cancelType           : Integer;
-                emailSubject         : string;                
+                emailSubject         : string;
         end;
 
         TCashbillInfo = class
@@ -110,6 +113,7 @@ type
                 itemKey              : string;
                 mgtKey               : string;
                 tradeDate            : string;
+                tradeDT              : string;
                 tradeType            : string;
                 tradeUsage           : string;
                 tradeOpt             : string;
@@ -206,7 +210,7 @@ type
 
                 //취소현금영수증 즉시발행
                 function RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; UserID : String = '';
-                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TCBIssueResponse;
+                        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = ''; emailSubject : String = ''; tradeDT : String = '') : TCBIssueResponse;
 
                 //취소현금영수증 임시저장
                 function RevokeRegister(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; UserID : String = '';
@@ -471,74 +475,7 @@ begin
 
 end;
 
-function TCashbillService.TCashbillListTojson(CashbillList : Array of TCashbill) : String;
-var
-        requestJson : string;
-        i : integer;
-begin
-        requestJson := '{';
 
-        requestJson := requestJson + '"cashbills":[';
-        for i := 0 to Length(CashbillList)-1 do
-        begin
-               requestJson := requestJson + TCashbillTojson(CashbillList[i],'');
-               if i < Length(CashbillList) - 1 then
-                        requestJson := requestJson + ',';
-        end;
-        requestJson := requestJson + ']';
-        requestJson := requestJson + '}';
-        result := requestJson;
-end;
-
-function TCashbillService.TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
-var
-        requestJson : string;
-
-begin
-        requestJson := '{';
-
-        requestJson := requestJson + '"memo":"'+ Memo +'",';
-        requestJson := requestJson + '"emailSubject":"'+ EscapeString(Cashbill.emailSubject) +'",';
-
-        requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
-        requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
-        requestJson := requestJson + '"tradeOpt":"'+ EscapeString(Cashbill.tradeOpt) +'",';
-        requestJson := requestJson + '"tradeType":"'+ EscapeString(Cashbill.tradeType) +'",';
-        requestJson := requestJson + '"taxationType":"'+ EscapeString(Cashbill.taxationType) +'",';
-        requestJson := requestJson + '"supplyCost":"'+ EscapeString(Cashbill.supplyCost) +'",';
-        requestJson := requestJson + '"tax":"'+ EscapeString(Cashbill.tax) +'",';
-        requestJson := requestJson + '"serviceFee":"'+ EscapeString(Cashbill.serviceFee) +'",';
-        requestJson := requestJson + '"totalAmount":"'+ EscapeString(Cashbill.totalAmount) +'",';
-        
-        requestJson := requestJson + '"franchiseCorpNum":"'+ EscapeString(Cashbill.franchiseCorpNum) +'",';
-        requestJson := requestJson + '"franchiseTaxRegID":"'+ EscapeString(Cashbill.franchiseTaxRegID) +'",';
-        requestJson := requestJson + '"franchiseCorpName":"'+ EscapeString(Cashbill.franchiseCorpName) +'",';
-        requestJson := requestJson + '"franchiseCEOName":"'+ EscapeString(Cashbill.franchiseCEOName) +'",';
-        requestJson := requestJson + '"franchiseAddr":"'+ EscapeString(Cashbill.franchiseAddr) +'",';
-        requestJson := requestJson + '"franchiseTEL":"'+ EscapeString(Cashbill.franchiseTEL) +'",';
-        
-        requestJson := requestJson + '"identityNum":"'+ EscapeString(Cashbill.identityNum) +'",';
-        requestJson := requestJson + '"customerName":"'+ EscapeString(Cashbill.customerName) +'",';
-        requestJson := requestJson + '"itemName":"'+ EscapeString(Cashbill.itemName) +'",';
-        requestJson := requestJson + '"orderNumber":"'+ EscapeString(Cashbill.orderNumber) +'",';
-        requestJson := requestJson + '"email":"'+ EscapeString(Cashbill.email) +'",';
-        requestJson := requestJson + '"hp":"'+ EscapeString(Cashbill.hp) +'",';
-        requestJson := requestJson + '"fax":"'+ EscapeString(Cashbill.fax) +'",';
-
-        if Cashbill.smssendYN then
-        requestJson := requestJson + '"smssendYN":true,';
-
-        if Cashbill.faxsendYN then
-        requestJson := requestJson + '"faxsendYN":true,';
-
-        requestJson := requestJson + '"orgTradeDate":"'+ EscapeString(Cashbill.orgTradeDate) +'",';
-        requestJson := requestJson + '"orgConfirmNum":"'+ EscapeString(Cashbill.orgConfirmNum) +'"';
-
-
-        requestJson := requestJson + '}';
-
-        result := requestJson;
-end;
 
 function TCashbillService.RegistIssue(CorpNum : String; Cashbill : TCashbill; Memo : String; UserID : String = ''; EmailSubject : String = '') : TCBIssueResponse;
 var
@@ -581,6 +518,7 @@ begin
                 result.message := getJSonString(responseJson,'message');
                 result.confirmNum := getJSonString(responseJson,'confirmNum');
                 result.tradeDate := getJSonString(responseJson,'tradeDate');
+                result.tradeDT := getJSonString(responseJson,'tradeDT');
         end;
 end;
 
@@ -624,7 +562,8 @@ begin
                 result.code := getJSonInteger(responseJson,'code');
                 result.message := getJSonString(responseJson,'message');
                 result.confirmNum := getJSonString(responseJson,'confirmNum');
-                result.tradeDate := getJSonString(responseJson,'tradeDate');     
+                result.tradeDate := getJSonString(responseJson,'tradeDate');
+                result.tradeDT := getJSonString(responseJson,'tradeDT');
         end;
 end;
 
@@ -665,55 +604,6 @@ begin
         end; 
 end;
 
-function TCashbillService.jsonToTBulkCashbillResult(json : String) : TBulkCashbillResult;
-var
-        jsons : ArrayOfString;
-        i : Integer;
-begin
-        try
-                result := TBulkCashbillResult.Create;
-                result.code := getJSonInteger(json,'code');
-                result.message := getJSonString(json,'message');
-                result.submitID := getJSonString(json,'submitID');
-                result.submitCount := getJSonInteger(json,'submitCount');
-                result.successCount := getJSonInteger(json,'successCount');
-                result.failCount := getJSonInteger(json,'failCount');
-                result.txState := getJSonInteger(json,'txState');
-                result.txResultCode := getJSonInteger(json,'txResultCode');
-                result.txStartDT := getJSonString(json,'txStartDT');
-                result.txEndDT := getJSonString(json,'txEndDT');
-                result.receiptDT := getJSonString(json,'receiptDT');
-                result.receiptID := getJSonString(json,'receiptID');
-
-                jSons := getJSonList(json, 'issueResult');
-                SetLength(result.issueResult, Length(jSons));
-
-                for i:=0 to Length(jSons)-1 do
-                begin
-                        result.issueResult[i] := TBulkCashbillIssueResult.Create;
-                        result.issueResult[i].code := getJSonInteger(jSons[i],'code');
-                        result.issueResult[i].mgtKey := getJSonString(jSons[i],'mgtKey');
-                        result.issueResult[i].message := getJSonString(jSons[i],'message');
-                        result.issueResult[i].confirmNum := getJSonString(jSons[i],'confirmNum');
-                        result.issueResult[i].tradeDate := getJSonString(jSons[i],'tradeDate');
-                end;
-        except
-                on E:Exception do begin
-                        if FIsThrowException then
-                        begin
-                                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
-                                exit;
-                        end
-                        else
-                        begin
-                                result := TBulkCashbillResult.Create;
-                                result.code := -99999999;
-                                result.message := '결과처리 실패.[Malformed Json]';
-                                exit;
-                        end;
-                end;
-        end;
-end;
 
 function TCashbillService.GetBulkResult(CorpNum : String; SubmitID : String; UserID : String = '') : TBulkCashbillResult;
 var
@@ -788,7 +678,7 @@ end;
 
 // 취소현금영수증 즉시발행 추가. 2017/08/18
 function TCashbillService.RevokeRegistIssue(CorpNum : String; mgtKey : String; orgConfirmNum : String; orgTradeDate : String; smssendYN : Boolean = False; memo : String = ''; userID : String = '';
-        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = '') : TCBIssueResponse;
+        isPartCancel: Boolean = False; cancelType : Integer = 0; supplyCost : String = ''; tax : String = ''; serviceFee : String = ''; totalAmount : String = ''; emailSubject : String = ''; tradeDT : String = '') : TCBIssueResponse;
 var
         requestJson : string;
         responseJson : string;
@@ -810,6 +700,9 @@ begin
                 requestJson := requestJson + '"tax":"' + EscapeString(tax) + '",';
                 requestJson := requestJson + '"serviceFee":"' + EscapeString(serviceFee) + '",';
                 requestJson := requestJson + '"totalAmount":"' + EscapeString(totalAmount) + '",';
+                
+                requestJson := requestJson + '"emailSubject":"' + EscapeString(emailSubject) + '",';
+                requestJson := requestJson + '"tradeDT":"' + EscapeString(tradeDT) + '",';
 
                 requestJson := requestJson + '"memo":"'+EscapeString(memo) + '"}';
                
@@ -840,6 +733,7 @@ begin
                 result.message := getJSonString(responseJson,'message');
                 result.confirmNum := getJSonString(responseJson,'confirmNum');
                 result.tradeDate := getJSonString(responseJson,'tradeDate');  
+                result.tradeDT := getJSonString(responseJson,'tradeDT');
         end;
 end;
 
@@ -1002,7 +896,8 @@ begin
                 result.code := getJSonInteger(responseJson,'code');
                 result.message := getJSonString(responseJson,'message');
                 result.confirmNum := getJSonString(responseJson,'confirmNum');
-                result.tradeDate := getJSonString(responseJson,'tradeDate');
+                result.tradeDate := getJSonString(responseJson,'tradeDate');  
+                result.tradeDT := getJSonString(responseJson,'tradeDT');
         end;
 end;
 
@@ -1219,37 +1114,6 @@ begin
 end;
 
 
-function TCashbillService.jsonToTCashbillInfo(json : String) : TCashbillInfo;
-begin
-        result := TCashbillInfo.Create;
-
-        result.itemKey := getJSonString(json,'itemKey');
-        result.mgtKey := getJSonString(json,'mgtKey');
-        result.tradeDate := getJSonString(json,'tradeDate');
-        result.tradeType := getJSonString(json,'tradeType');
-        result.tradeUsage := getJSonString(json,'tradeUsage');
-        result.tradeOpt := getJSonString(json,'tradeOpt');
-        result.taxationType := getJSonString(json,'taxationType');
-        result.totalAmount := getJSonString(json,'totalAmount');
-        result.issueDT := getJSonString(json,'issueDT');
-        result.regDT := getJSonString(json,'regDT');
-        result.stateMemo := getJSonString(json,'stateMemo');
-        result.stateCode := getJSonInteger(json,'stateCode');
-        result.stateDT := getJSonString(json,'stateDT');
-        result.identityNum := getJSonString(json,'identityNum');
-        result.itemName := getJSonString(json,'itemName');
-        result.customerName := getJSonString(json,'customerName');
-        result.confirmNum := getJSonString(json,'confirmNum');
-        result.orgConfirmNum := getJSonString(json,'orgConfirmNum');
-        result.orgTradeDate := getJSonString(json,'orgTradeDate');
-        result.ntssendDT := getJSonString(json,'ntssendDT');
-        result.ntsresult := getJSonString(json,'ntsresult');
-        result.ntsresultDT := getJSonString(json,'ntsresultDT');
-        result.ntsresultCode := getJSonString(json,'ntsresultCode');
-        result.ntsresultMessage := getJSonString(json,'ntsresultMessage');
-        result.printYN := getJSonBoolean(json,'printYN');
-end;
-
 function TCashbillService.getInfo(CorpNum : string; MgtKey: string) : TCashbillInfo;
 var
         responseJson : string;
@@ -1292,48 +1156,6 @@ begin
 end;
 
 
-function TCashbillService.jsonToTCashbill(json : String) : TCashbill;
-begin
-        result := TCashbill.Create;
-
-        result.mgtKey                := getJSonString(json,'mgtKey');
-        result.tradeDate             := getJSonString(json,'tradeDate');
-        result.tradeUsage            := getJSonString(json,'tradeUsage');
-        result.tradeOpt              := getJSonString(json,'tradeOpt');
-        result.tradeType             := getJSonString(json,'tradeType');
-
-        result.taxationType          := getJSonString(json,'taxationType');
-        result.supplyCost            := getJSonString(json,'supplyCost');
-        result.tax                   := getJSonString(json,'tax');
-        result.serviceFee            := getJSonString(json,'serviceFee');
-        result.totalAmount           := getJSonString(json,'totalAmount');
-
-        result.franchiseCorpNum      := getJSonString(json,'franchiseCorpNum');
-        result.franchiseTaxRegID     := getJSonString(json,'franchiseTaxRegID');
-        result.franchiseCorpName     := getJSonString(json,'franchiseCorpName');
-        result.franchiseCEOName      := getJSonString(json,'franchiseCEOName');
-        result.franchiseAddr         := getJSonString(json,'franchiseAddr');
-        result.franchiseTEL          := getJSonString(json,'franchiseTEL');
-
-        result.identityNum           := getJSonString(json,'identityNum');
-        result.customerName          := getJSonString(json,'customerName');
-        result.itemName              := getJSonString(json,'itemName');
-        result.orderNumber           := getJSonString(json,'orderNumber');
-
-        result.email                 := getJSonString(json,'email');
-        result.hp                    := getJSonString(json,'hp');
-        result.fax                   := getJSonString(json,'fax');
-        
-        result.smssendYN             := getJSonBoolean(json,'smssendYN');
-        result.faxsendYN             := getJSonBoolean(json,'faxsendYN');
-        
-        result.confirmNum            := getJSonString(json,'confirmNum');
-        
-        result.orgConfirmNum         := getJSonString(json,'orgConfirmNum');
-        result.orgTradeDate          := getJSonString(json,'orgTradeDate');
-        result.cancelType          := getJSonInteger(json,'cancelType');        
-     
-end;
 
 function TCashbillService.GetDetailInfo(CorpNum : string; MgtKey: string) : TCashbill;
 var
@@ -2214,5 +2036,201 @@ begin
         end;        
 end;
 
+function TCashbillService.jsonToTCashbillInfo(json : String) : TCashbillInfo;
+begin
+        result := TCashbillInfo.Create;
+
+        result.itemKey          := getJSonString(json,'itemKey');
+        result.mgtKey           := getJSonString(json,'mgtKey');
+        result.tradeDate        := getJSonString(json,'tradeDate');
+        result.tradeDT          := getJSonString(json,'tradeDT');
+        result.tradeType        := getJSonString(json,'tradeType');
+        result.tradeUsage       := getJSonString(json,'tradeUsage');
+        result.tradeOpt         := getJSonString(json,'tradeOpt');
+        result.taxationType     := getJSonString(json,'taxationType');
+        result.totalAmount      := getJSonString(json,'totalAmount');
+        result.issueDT          := getJSonString(json,'issueDT');
+        result.regDT            := getJSonString(json,'regDT');
+        result.stateMemo        := getJSonString(json,'stateMemo');
+        result.stateCode        := getJSonInteger(json,'stateCode');
+        result.stateDT          := getJSonString(json,'stateDT');
+        result.identityNum      := getJSonString(json,'identityNum');
+        result.itemName         := getJSonString(json,'itemName');
+        result.customerName     := getJSonString(json,'customerName');
+        result.confirmNum       := getJSonString(json,'confirmNum');
+        result.orgConfirmNum    := getJSonString(json,'orgConfirmNum');
+        result.orgTradeDate     := getJSonString(json,'orgTradeDate');
+        result.ntssendDT        := getJSonString(json,'ntssendDT');
+        result.ntsresult        := getJSonString(json,'ntsresult');
+        result.ntsresultDT      := getJSonString(json,'ntsresultDT');
+        result.ntsresultCode    := getJSonString(json,'ntsresultCode');
+        result.ntsresultMessage := getJSonString(json,'ntsresultMessage');
+        result.printYN          := getJSonBoolean(json,'printYN');
+end;
+
+function TCashbillService.jsonToTCashbill(json : String) : TCashbill;
+begin
+        result := TCashbill.Create;
+
+        result.mgtKey                := getJSonString(json,'mgtKey');
+        result.tradeDate             := getJSonString(json,'tradeDate');
+        result.tradeDT               := getJSonString(json,'tradeDT');
+        result.tradeUsage            := getJSonString(json,'tradeUsage');
+        result.tradeOpt              := getJSonString(json,'tradeOpt');
+        result.tradeType             := getJSonString(json,'tradeType');
+
+        result.taxationType          := getJSonString(json,'taxationType');
+        result.supplyCost            := getJSonString(json,'supplyCost');
+        result.tax                   := getJSonString(json,'tax');
+        result.serviceFee            := getJSonString(json,'serviceFee');
+        result.totalAmount           := getJSonString(json,'totalAmount');
+
+        result.franchiseCorpNum      := getJSonString(json,'franchiseCorpNum');
+        result.franchiseTaxRegID     := getJSonString(json,'franchiseTaxRegID');
+        result.franchiseCorpName     := getJSonString(json,'franchiseCorpName');
+        result.franchiseCEOName      := getJSonString(json,'franchiseCEOName');
+        result.franchiseAddr         := getJSonString(json,'franchiseAddr');
+        result.franchiseTEL          := getJSonString(json,'franchiseTEL');
+
+        result.identityNum           := getJSonString(json,'identityNum');
+        result.customerName          := getJSonString(json,'customerName');
+        result.itemName              := getJSonString(json,'itemName');
+        result.orderNumber           := getJSonString(json,'orderNumber');
+
+        result.email                 := getJSonString(json,'email');
+        result.hp                    := getJSonString(json,'hp');
+        result.fax                   := getJSonString(json,'fax');
+        
+        result.smssendYN             := getJSonBoolean(json,'smssendYN');
+        result.faxsendYN             := getJSonBoolean(json,'faxsendYN');
+        
+        result.confirmNum            := getJSonString(json,'confirmNum');
+        
+        result.orgConfirmNum         := getJSonString(json,'orgConfirmNum');
+        result.orgTradeDate          := getJSonString(json,'orgTradeDate');
+        result.cancelType          := getJSonInteger(json,'cancelType');        
+
+end;
+
+function TCashbillService.TCashbillTojson(Cashbill : TCashbill; Memo : String) : String;
+var
+        requestJson : string;
+
+begin
+        requestJson := '{';
+
+        requestJson := requestJson + '"memo":"'+ Memo +'",';
+        requestJson := requestJson + '"emailSubject":"'+ EscapeString(Cashbill.emailSubject) +'",';
+
+        requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
+        requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
+        requestJson := requestJson + '"tradeOpt":"'+ EscapeString(Cashbill.tradeOpt) +'",';  
+        requestJson := requestJson + '"tradeDT":"'+ EscapeString(Cashbill.tradeDT) +'",';
+        requestJson := requestJson + '"tradeType":"'+ EscapeString(Cashbill.tradeType) +'",';
+        requestJson := requestJson + '"taxationType":"'+ EscapeString(Cashbill.taxationType) +'",';
+        requestJson := requestJson + '"supplyCost":"'+ EscapeString(Cashbill.supplyCost) +'",';
+        requestJson := requestJson + '"tax":"'+ EscapeString(Cashbill.tax) +'",';
+        requestJson := requestJson + '"serviceFee":"'+ EscapeString(Cashbill.serviceFee) +'",';
+        requestJson := requestJson + '"totalAmount":"'+ EscapeString(Cashbill.totalAmount) +'",';
+        
+        requestJson := requestJson + '"franchiseCorpNum":"'+ EscapeString(Cashbill.franchiseCorpNum) +'",';
+        requestJson := requestJson + '"franchiseTaxRegID":"'+ EscapeString(Cashbill.franchiseTaxRegID) +'",';
+        requestJson := requestJson + '"franchiseCorpName":"'+ EscapeString(Cashbill.franchiseCorpName) +'",';
+        requestJson := requestJson + '"franchiseCEOName":"'+ EscapeString(Cashbill.franchiseCEOName) +'",';
+        requestJson := requestJson + '"franchiseAddr":"'+ EscapeString(Cashbill.franchiseAddr) +'",';
+        requestJson := requestJson + '"franchiseTEL":"'+ EscapeString(Cashbill.franchiseTEL) +'",';
+        
+        requestJson := requestJson + '"identityNum":"'+ EscapeString(Cashbill.identityNum) +'",';
+        requestJson := requestJson + '"customerName":"'+ EscapeString(Cashbill.customerName) +'",';
+        requestJson := requestJson + '"itemName":"'+ EscapeString(Cashbill.itemName) +'",';
+        requestJson := requestJson + '"orderNumber":"'+ EscapeString(Cashbill.orderNumber) +'",';
+        requestJson := requestJson + '"email":"'+ EscapeString(Cashbill.email) +'",';
+        requestJson := requestJson + '"hp":"'+ EscapeString(Cashbill.hp) +'",';
+        requestJson := requestJson + '"fax":"'+ EscapeString(Cashbill.fax) +'",';
+
+        if Cashbill.smssendYN then
+        requestJson := requestJson + '"smssendYN":true,';
+
+        if Cashbill.faxsendYN then
+        requestJson := requestJson + '"faxsendYN":true,';
+
+        requestJson := requestJson + '"orgTradeDate":"'+ EscapeString(Cashbill.orgTradeDate) +'",';
+        requestJson := requestJson + '"orgConfirmNum":"'+ EscapeString(Cashbill.orgConfirmNum) +'"';
+
+
+        requestJson := requestJson + '}';
+
+        result := requestJson;
+end;
+
+function TCashbillService.TCashbillListTojson(CashbillList : Array of TCashbill) : String;
+var
+        requestJson : string;
+        i : integer;
+begin
+        requestJson := '{';
+
+        requestJson := requestJson + '"cashbills":[';
+        for i := 0 to Length(CashbillList)-1 do
+        begin
+               requestJson := requestJson + TCashbillTojson(CashbillList[i],'');
+               if i < Length(CashbillList) - 1 then
+                        requestJson := requestJson + ',';
+        end;
+        requestJson := requestJson + ']';
+        requestJson := requestJson + '}';
+        result := requestJson;
+end;
+
+function TCashbillService.jsonToTBulkCashbillResult(json : String) : TBulkCashbillResult;
+var
+        jsons : ArrayOfString;
+        i : Integer;
+begin
+        try
+                result := TBulkCashbillResult.Create;
+                result.code := getJSonInteger(json,'code');
+                result.message := getJSonString(json,'message');
+                result.submitID := getJSonString(json,'submitID');
+                result.submitCount := getJSonInteger(json,'submitCount');
+                result.successCount := getJSonInteger(json,'successCount');
+                result.failCount := getJSonInteger(json,'failCount');
+                result.txState := getJSonInteger(json,'txState');
+                result.txResultCode := getJSonInteger(json,'txResultCode');
+                result.txStartDT := getJSonString(json,'txStartDT');
+                result.txEndDT := getJSonString(json,'txEndDT');
+                result.receiptDT := getJSonString(json,'receiptDT');
+                result.receiptID := getJSonString(json,'receiptID');
+
+                jSons := getJSonList(json, 'issueResult');
+                SetLength(result.issueResult, Length(jSons));
+
+                for i:=0 to Length(jSons)-1 do
+                begin
+                        result.issueResult[i] := TBulkCashbillIssueResult.Create;
+                        result.issueResult[i].code := getJSonInteger(jSons[i],'code');
+                        result.issueResult[i].mgtKey := getJSonString(jSons[i],'mgtKey');
+                        result.issueResult[i].message := getJSonString(jSons[i],'message');
+                        result.issueResult[i].confirmNum := getJSonString(jSons[i],'confirmNum');
+                        result.issueResult[i].tradeDate := getJSonString(jSons[i],'tradeDate');     
+                        result.issueResult[i].tradeDT := getJSonString(jSons[i],'tradeDT');
+                end;
+        except
+                on E:Exception do begin
+                        if FIsThrowException then
+                        begin
+                                raise EPopbillException.Create(-99999999,'결과처리 실패.[Malformed Json]');
+                                exit;
+                        end
+                        else
+                        begin
+                                result := TBulkCashbillResult.Create;
+                                result.code := -99999999;
+                                result.message := '결과처리 실패.[Malformed Json]';
+                                exit;
+                        end;
+                end;
+        end;
+end;
 
 end.
