@@ -2124,7 +2124,10 @@ begin
 
         requestJson := requestJson + '"mgtKey":"'+ EscapeString(Cashbill.mgtKey) +'",';
         requestJson := requestJson + '"tradeUsage":"'+ EscapeString(Cashbill.tradeUsage) +'",';
-        requestJson := requestJson + '"tradeOpt":"'+ EscapeString(Cashbill.tradeOpt) +'",';  
+
+        if Cashbill.tradeOpt <> '' then
+        requestJson := requestJson + '"tradeOpt":"'+ EscapeString(Cashbill.tradeOpt) +'",';
+          
         requestJson := requestJson + '"tradeDT":"'+ EscapeString(Cashbill.tradeDT) +'",';
         requestJson := requestJson + '"tradeType":"'+ EscapeString(Cashbill.tradeType) +'",';
         requestJson := requestJson + '"taxationType":"'+ EscapeString(Cashbill.taxationType) +'",';
